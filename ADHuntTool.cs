@@ -312,7 +312,7 @@ namespace ADHuntTool
                         {
                             if (showNull)
                             {
-                                sb.Append(prop + new string(' ', 20 - prop.Length) + ":\r\n");
+                                sb.Append(prop + new string(' ', 24 - prop.Length) + ":\r\n");
                             }
                         }
                         
