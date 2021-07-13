@@ -209,7 +209,7 @@ namespace ADHuntTool
                 NetApiBufferFree(bufPtr);
             }
         }
-        
+
 
         static void DumpLocalAdminMembers(string computer, string group)
         {
@@ -267,12 +267,13 @@ namespace ADHuntTool
 
         static List<string> LdapQuery(string domain, string query, string properties, bool showNull = true, bool returnList = false, string prepend = "LDAP://")
         {
+            domain = prepend + domain;
             List<string> output = new List<string>();
-            Console.WriteLine("Connecting to: LDAP://{0}", domain);
+            Console.WriteLine("Connecting to: {0}", domain);
             Console.WriteLine("Querying:      {0}", query);
 
 
-            DirectoryEntry de = new DirectoryEntry(prepend + domain);
+            DirectoryEntry de = new DirectoryEntry(domain);
             DirectorySearcher ds = new DirectorySearcher(de);
 
             ds.Filter = query;
@@ -292,7 +293,14 @@ namespace ADHuntTool
                         Int32 item = r.Properties[prop].Count;
                         if (item > 0)
                         {
-                            sb.Append(prop + new string(' ', 20 - prop.Length) + ": ");
+                            if (prop.Length >= 24)
+                            {
+                                sb.Append(prop + ": ");
+                            }
+                            else
+                            {
+                                sb.Append(prop + new string(' ', 24 - prop.Length) + ": ");
+                            }
                             sb.Append(item > 1 ? "[" + FormatProperties(r.Properties[prop]) + "]" : FormatTime(r.Properties[prop][0]));
                             sb.Append("\r\n");
                             if (returnList)
@@ -307,6 +315,7 @@ namespace ADHuntTool
                                 sb.Append(prop + new string(' ', 20 - prop.Length) + ":\r\n");
                             }
                         }
+                        
                     }
                     if (sb.Length > 0)
                     {
@@ -369,6 +378,7 @@ namespace ADHuntTool
             return managedFound;
         }
 
+
         static void Main(string[] args)
         {
             bool verboseDebug = Array.Exists(args, match => match.ToLower() == "-verbose");
@@ -403,7 +413,7 @@ namespace ADHuntTool
                         Console.WriteLine("Bruteforcing {0} accounts", users.Count);
                         foreach (string u in users)
                         {
-                            Task t = Task.Run(() =>
+                            Thread t = new Thread(() =>
                             {
                                 using (PrincipalContext pc = new PrincipalContext(ContextType.Domain, domain))
                                 {
@@ -418,6 +428,8 @@ namespace ADHuntTool
                                     }
                                 }
                             });
+                            t.SetApartmentState(ApartmentState.STA);
+                            t.Start();
                         }
                     }
                     catch (Exception e)
@@ -463,10 +475,12 @@ namespace ADHuntTool
                         Console.WriteLine(String.Format("Querying {0} computer(s).", computers.Count));
                         foreach (string c in computers)
                         {
-                            Task t = Task.Run(() =>
+                            Thread t = new Thread(() =>
                             {
                                 DumpLocalAdminGroups(c);
                             });
+                            t.SetApartmentState(ApartmentState.STA);
+                            t.Start();
                         }
                     }
                     catch (Exception e)
@@ -496,10 +510,12 @@ namespace ADHuntTool
                             Console.WriteLine(String.Format("Querying {0} computer(s).", computers.Count));
                             foreach (string c in computers)
                             {
-                                Task t = Task.Run(() =>
+                                Thread t =new Thread(() =>
                                 {
                                     DumpRemoteSession(c);
                                 });
+                                t.SetApartmentState(ApartmentState.STA);
+                                t.Start();
                             }
                         }
                     }
@@ -530,10 +546,13 @@ namespace ADHuntTool
                             Console.WriteLine(String.Format("Querying {0} computer(s).", computers.Count));
                             foreach (string c in computers)
                             {
-                                Task t = Task.Run(() =>
+                                Thread t = new Thread(() =>
                                 {
                                     DumpWkstaSession(c);
                                 });
+
+                                t.SetApartmentState(ApartmentState.STA);
+                                t.Start();
                             }
                         }
                     }
@@ -565,8 +584,13 @@ namespace ADHuntTool
                         Console.WriteLine(String.Format("Querying {0} computer(s).", computers.Count));
                         foreach (string c in computers)
                         {
-                            Console.WriteLine("\nComputer {0}\n------------------------", c);
-                            DumpLocalAdminMembers(c, "Administrators");
+                            Thread t = new Thread(() =>
+                            {
+                                Console.WriteLine("\nComputer {0}\n------------------------", c);
+                                DumpLocalAdminMembers(c, "Administrators");
+                            });
+                            t.SetApartmentState(ApartmentState.STA);
+                            t.Start();
                         }
                     }
                     catch (Exception e)
@@ -623,10 +647,12 @@ namespace ADHuntTool
                         Console.WriteLine(String.Format("Querying {0} computer(s).", computers.Count));
                         foreach (string c in computers)
                         {
-                            Task t = Task.Run(() =>
+                            Thread t = new Thread(() =>
                             {
                                 CheckLocalAdminRight(c);
                             });
+                            t.SetApartmentState(ApartmentState.STA);
+                            t.Start();
                         }
                     }
                     catch (Exception e)
@@ -756,14 +782,34 @@ namespace ADHuntTool
                         ShowDebug(e, verboseDebug);
                     }
                 }
+                else if (option == "dumpcertificatetemplates")
+                {
+                    string query = "";
+                    string properties = "name";
+                    try
+                    {
+                        Console.WriteLine("CA Name is:");
+                        query = "(&(!name=AIA))";
+                        LdapQuery(domain, query, properties, true, false, "LDAP://CN=AIA,CN=Public Key Services,CN=Services,CN=Configuration,DC=");
+                        
+                        properties = "name,displayName,distinguishedName,msPKI-Cert-Template-OID,msPKI-Enrollment-Flag";
+                        query = "(&(name=*))";
+                        LdapQuery(domain, query, properties, true, false, "LDAP://CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("ERROR: DumpCertificateTemplates catched an unexpected exception");
+                        ShowDebug(e, verboseDebug);
+                    }
+                }
                 else if (option == "dumppasswordpolicy")
                 {
                     string query = "";
                     string properties = "name,distinguishedName,msDS-MinimumPasswordLength,msDS-PasswordHistoryLength,msDS-PasswordComplexityEnabled,msDS-PasswordReversibleEncryptionEnabled,msDS-LockoutThreshold,msDS-PasswordSettingsPrecedence";
                     try
                     {
-                        query = "(&(objectClass=msDS-PasswordSettings))";
-                        LdapQuery(domain, query, properties, true, false, "ldap://CN=ms-DS-Password-Settings,CN=Schema,CN=Configuration,DC=");
+                        query = "(&(name=ms-DS-Password-Settings))";
+                        LdapQuery(domain, query, properties, true, false, "LDAP://CN=Schema,CN=Configuration,DC=");
                     }
                     catch (Exception e)
                     {
