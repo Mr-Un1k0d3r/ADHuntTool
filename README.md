@@ -20,7 +20,8 @@ ADHuntTool.exe DumpAllComputers RingZer0
 ADHuntTool.exe DumpComputer RingZer0 DC01
 ADHuntTool.exe DumpAllGroups RingZer0
 ADHuntTool.exe DumpGroup RingZer0 "Domain Admins"
-ADHuntTool.exe DumpPasswordPolicy RingZer0
+ADHuntTool.exe DumpPasswordPolicy Ringzer0,DC=local
+ADHuntTool.exe DumpCertificateTemplates Ringzer0,DC=local
 ADHuntTool.exe DumpPwdLastSet RingZer0
 ADHuntTool.exe DumpLastLogon RingZer0
 ADHuntTool.exe CheckManaged RingZer0
