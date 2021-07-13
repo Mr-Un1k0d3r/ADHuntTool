@@ -3,7 +3,29 @@ official report for the AdHuntTool. C# Script used for Red Team. It can be used 
 
 # How to use it
 
-Note that `DumpCertificateTemplates` and `DumpPasswordPolicy` need the full base aka: domain name is `ringzer0.local` you need to specify the domain as `ringzer0,DC=local`
+Note that `DumpCertificateTemplates` and `DumpPasswordPolicy` need the full base 
+
+Ex: domain name is `ringzer0.local` you need to specify the domain as `ringzer0,DC=local`
+
+This will generate the following query under the hood
+
+```
+beacon> execute-assembly C:\users\dev\Desktop\ADHuntTool.exe dumpcertificatetemplates ringzer0,DC=local -verbose
+CA Name is:
+Connecting to: LDAP://CN=AIA,CN=Public Key Services,CN=Services,CN=Configuration,DC=ringzer0,DC=local
+Querying:      (&(!name=AIA))
+name                    : RINGZER0-RZDC-CA
+
+Connecting to: LDAP://CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=ringzer0,DC=local
+Querying:      (&(name=*))
+name                    : User
+displayName             : User
+distinguishedName       : CN=User,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=RINGZER0,DC=local
+msPKI-Cert-Template-OID : 1.3.6.1.4.1.311.21.8.7352012.6162934.10046593.3535065.1065136.82.1.1
+msPKI-Enrollment-Flag   : 41
+```
+
+List of supported features
 
 ```
 Usage: ADHuntTool.exe options domain [arguments]
