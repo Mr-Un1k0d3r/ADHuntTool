@@ -3,6 +3,8 @@ official report for the AdHuntTool. C# Script used for Red Team. It can be used 
 
 # How to use it
 
+Note that `DumpCertificateTemplates` and `DumpPasswordPolicy` need the full base aka: domain name is `ringzer0.local` you need to specify the domain as `ringzer0,DC=local`
+
 ```
 Usage: ADHuntTool.exe options domain [arguments]
 
