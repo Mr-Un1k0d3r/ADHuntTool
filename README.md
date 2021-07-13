@@ -32,6 +32,8 @@ ADHuntTool.exe GetShare target *optional*Domain\Username Password
 ADHuntTool.exe GetService target *optional*Domain\Username Password
 ```
 
+The `-verbose` switch can be added to get verbose output.
+
 # Credit 
 
 Mr.Un1k0d3r RingZer0 Team
