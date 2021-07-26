@@ -264,7 +264,66 @@ namespace ADHuntTool
             }
             return p.ToString(); ;
         }
+        static string FormatCertFlag(string flag)
+        {
+            StringBuilder sb = new StringBuilder();
+            UInt32 flags = UInt32.Parse(flag); 
 
+            if((flags & 0x01) == 0x01)
+            {
+                sb.Append("CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT,");
+            }
+            if ((flags & 0x00010000) == 0x00010000)
+            {
+                sb.Append("CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT_ALT_NAME,");
+            }
+            if ((flags & 0x00400000) == 0x00400000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_ALT_REQUIRE_DOMAIN_DNS,");
+            }
+            if ((flags & 0x00800000) == 0x00800000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_ALT_REQUIRE_SPN,");
+            }
+            if ((flags & 0x01000000) == 0x01000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_ALT_REQUIRE_DIRECTORY_GUID,");
+            }
+            if ((flags & 0x02000000) == 0x02000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_ALT_REQUIRE_UPN ,");
+            }
+            if ((flags & 0x04000000) == 0x04000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_ALT_REQUIRE_EMAIL,");
+            }
+            if ((flags & 0x08000000) == 0x08000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_ALT_REQUIRE_DNS,");
+            }
+            if ((flags & 0x10000000) == 0x10000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_REQUIRE_DNS_AS_CN,");
+            }
+            if ((flags & 0x20000000) == 0x20000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_REQUIRE_EMAIL,");
+            }
+            if ((flags & 0x40000000) == 0x40000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_REQUIRE_COMMON_NAME,");
+            }
+            if ((flags & 0x80000000) == 0x80000000)
+            {
+                sb.Append("CT_FLAG_SUBJECT_REQUIRE_DIRECTORY_PATH,");
+            }
+            if ((flags & 0x00000008) == 0x00000008)
+            {
+                sb.Append("CT_FLAG_OLD_CERT_SUPPLIES_SUBJECT_AND_ALT_NAME,");
+            }
+
+            return sb.ToString();
+        }
         static List<string> LdapQuery(string domain, string query, string properties, bool showNull = true, bool returnList = false, string prepend = "LDAP://")
         {
             domain = prepend + domain;
@@ -301,8 +360,16 @@ namespace ADHuntTool
                             {
                                 sb.Append(prop + new string(' ', 24 - prop.Length) + ": ");
                             }
-                            sb.Append(item > 1 ? "[" + FormatProperties(r.Properties[prop]) + "]" : FormatTime(r.Properties[prop][0]));
-                            sb.Append("\r\n");
+
+                            if(prop == "msPKI-Certificate-Name-Flag")
+                            {
+                                sb.Append(FormatCertFlag(r.Properties[prop][0].ToString()));
+                            } else
+                            {
+                                sb.Append(item > 1 ? "[" + FormatProperties(r.Properties[prop]) + "]" : FormatTime(r.Properties[prop][0]));
+                                sb.Append("\r\n");
+                            }
+                            
                             if (returnList)
                             {
                                 output.Add(r.Properties[prop][0].ToString());
@@ -312,10 +379,17 @@ namespace ADHuntTool
                         {
                             if (showNull)
                             {
-                                sb.Append(prop + new string(' ', 24 - prop.Length) + ":\r\n");
+                                if (prop.Length >= 24)
+                                {
+                                    sb.Append(prop + ": ");
+                                }
+                                else
+                                {
+                                    sb.Append(prop + new string(' ', 24 - prop.Length) + ":\r\n");
+                                }
                             }
                         }
-                        
+
                     }
                     if (sb.Length > 0)
                     {
@@ -510,7 +584,7 @@ namespace ADHuntTool
                             Console.WriteLine(String.Format("Querying {0} computer(s).", computers.Count));
                             foreach (string c in computers)
                             {
-                                Thread t =new Thread(() =>
+                                Thread t = new Thread(() =>
                                 {
                                     DumpRemoteSession(c);
                                 });
@@ -791,8 +865,8 @@ namespace ADHuntTool
                         Console.WriteLine("CA Name is:");
                         query = "(&(!name=AIA))";
                         LdapQuery(domain, query, properties, true, false, "LDAP://CN=AIA,CN=Public Key Services,CN=Services,CN=Configuration,DC=");
-                        
-                        properties = "name,displayName,distinguishedName,msPKI-Cert-Template-OID,msPKI-Enrollment-Flag";
+
+                        properties = "name,displayName,distinguishedName,msPKI-Cert-Template-OID,msPKI-Enrollment-Flag,pKIExtendedKeyUsage,msPKI-Certificate-Name-Flag";
                         query = "(&(name=*))";
                         LdapQuery(domain, query, properties, true, false, "LDAP://CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=");
                     }
