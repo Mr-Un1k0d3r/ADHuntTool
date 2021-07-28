@@ -48,6 +48,10 @@ Trustee: RINGZER0\Enterprise Admins
 ------------
 ...
 ```
+
+Standard commands
+
+```
 Usage: ADHuntTool.exe options domain [arguments]
 
 ADHuntTool.exe Set
