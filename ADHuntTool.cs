@@ -253,14 +253,16 @@ namespace ADHuntTool
             Int32 size = r.Count;
             for (Int32 i = 0; i < size; i++)
             {
-                if(r[i].GetType().ToString() == "System.Byte[]") {
+                if (r[i].GetType().ToString() == "System.Byte[]")
+                {
                     sb.Append(Encoding.ASCII.GetString((byte[])r[i]) + ",");
-                } else
+                }
+                else
                 {
                     sb.Append(r[i] + ",");
                 }
 
-                
+
             }
             return sb.ToString().TrimEnd(',');
         }
@@ -271,6 +273,19 @@ namespace ADHuntTool
             if (p.GetType().ToString() == "System.Int64")
             {
                 return DateTime.FromFileTime((long)p).ToString();
+            }
+
+            if(p.GetType().ToString() == "System.Byte[]")
+            {
+                try {
+                    SecurityIdentifier si = new SecurityIdentifier((byte[])p, 0);
+                    string output = si.ToString();
+                    return output;
+                }
+                catch
+                {
+                    return Encoding.ASCII.GetString((byte[])p);
+                }
             }
             return p.ToString(); ;
         }
@@ -343,9 +358,9 @@ namespace ADHuntTool
             {
                 RawSecurityDescriptor raw = new RawSecurityDescriptor((byte[])r[i], 0);
 
-               
+
                 sb.Append(SDDLParser.Parse(raw.GetSddlForm(AccessControlSections.All)) + ",");
-                
+
 
             }
             return sb.ToString().TrimEnd(',');
@@ -364,7 +379,7 @@ namespace ADHuntTool
             ds.Filter = query;
             ds.PageSize = Int32.MaxValue;
 
-            if(Program.showACL)
+            if (Program.showACL)
             {
                 ds.SecurityMasks = SecurityMasks.Dacl | SecurityMasks.Group;
             }
@@ -374,7 +389,7 @@ namespace ADHuntTool
                 try
                 {
                     StringBuilder sb = new StringBuilder();
-                    if(Program.showACL)
+                    if (Program.showACL)
                     {
                         sb.Append("ntSecurityDescriptor" + new string(' ', 24 - "ntSecurityDescriptor".Length) + ": ");
                         sb.Append(FormatSDDL(r.Properties["ntSecurityDescriptor"]));
