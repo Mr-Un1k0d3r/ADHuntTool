@@ -555,7 +555,7 @@ namespace ADHuntTool
                 else if (option == "dumpallusers")
                 {
                     string query = "";
-                    string properties = "name,givenname,displayname,samaccountname,adspath,distinguishedname,memberof,ou,mail,proxyaddresses,lastlogon,pwdlastset,mobile,streetaddress,co,title,department,description,comment,badpwdcount,objectcategory,userpassword,scriptpath,managedby,managedobjects";
+                    string properties = "name,givenname,displayname,samaccountname,objectsid,adspath,distinguishedname,memberof,ou,mail,proxyaddresses,lastlogon,pwdlastset,mobile,streetaddress,co,title,department,description,comment,badpwdcount,objectcategory,userpassword,scriptpath,managedby,managedobjects";
                     try
                     {
                         query = "(&(objectClass=user))";
@@ -794,7 +794,7 @@ namespace ADHuntTool
                 else if (option == "dumpuser")
                 {
                     string query = "";
-                    string properties = "name,givenname,displayname,samaccountname,adspath,distinguishedname,memberof,ou,mail,proxyaddresses,lastlogon,pwdlastset,mobile,streetaddress,co,title,department,description,comment,badpwdcount,objectcategory,userpassword,scriptpath,managedby,managedobjects";
+                    string properties = "name,givenname,displayname,samaccountname,objectsid,adspath,distinguishedname,memberof,ou,mail,proxyaddresses,lastlogon,pwdlastset,mobile,streetaddress,co,title,department,description,comment,badpwdcount,objectcategory,userpassword,scriptpath,managedby,managedobjects";
                     try
                     {
                         query = "(&(objectClass=user)(samaccountname=*" + args[2] + "*))";
@@ -839,7 +839,7 @@ namespace ADHuntTool
                 else if (option == "dumpallcomputers")
                 {
                     string query = "";
-                    string properties = "name,displayname,operatingsystem,description,adspath,objectcategory,serviceprincipalname,distinguishedname,cn,lastlogon,managedby,managedobjects";
+                    string properties = "name,displayname,operatingsystem,description,objectsid,adspath,objectcategory,serviceprincipalname,distinguishedname,cn,lastlogon,managedby,managedobjects";
                     try
                     {
                         query = "(&(objectClass=computer))";
@@ -854,7 +854,7 @@ namespace ADHuntTool
                 else if (option == "dumpcomputer")
                 {
                     string query = "";
-                    string properties = "name,displayname,operatingsystem,description,adspath,objectcategory,serviceprincipalname,distinguishedname,cn,lastlogon,managedby,managedobjects";
+                    string properties = "name,displayname,operatingsystem,description,adspath,objectsid,objectcategory,serviceprincipalname,distinguishedname,cn,lastlogon,managedby,managedobjects";
                     try
                     {
                         query = "(&(objectClass=computer)(name=*" + args[2] + "))";
@@ -869,7 +869,7 @@ namespace ADHuntTool
                 else if (option == "dumpallgroups")
                 {
                     string query = "";
-                    string properties = "name,adspath,distinguishedname,member,memberof";
+                    string properties = "name,adspath,distinguishedname,objectsid,member,memberof";
                     try
                     {
                         query = "(&(objectClass=group))";
@@ -884,7 +884,7 @@ namespace ADHuntTool
                 else if (option == "dumpgroup")
                 {
                     string query = "";
-                    string properties = "name,adspath,distinguishedname,member,memberof";
+                    string properties = "name,adspath,distinguishedname,objectsid,member,memberof";
                     try
                     {
                         query = "(&(objectClass=group)(name=*" + args[2] + "))";
@@ -990,7 +990,7 @@ namespace ADHuntTool
                 {
                     // Based on https://www.trustedsec.com/blog/targeted-active-directory-host-enumeration/
                     string query = "";
-                    string properties = "name,givenname,displayname,samaccountname,adspath,distinguishedname,memberof,ou,mail,proxyaddresses,lastlogon,pwdlastset,mobile,streetaddress,co,title,department,description,comment,badpwdcount,objectcategory,userpassword,scriptpath";
+                    string properties = "name,givenname,displayname,samaccountname,adspath,objectsid,distinguishedname,memberof,ou,mail,proxyaddresses,lastlogon,pwdlastset,mobile,streetaddress,co,title,department,description,comment,badpwdcount,objectcategory,userpassword,scriptpath";
                     var date = DateTime.Today.AddDays(-(DateTime.Today.Day + 90));
                     long dateUtc = date.ToFileTimeUtc();
                     try
