@@ -48,9 +48,10 @@ Trustee: RINGZER0\Enterprise Admins
 ------------
 ...
 
-The command output can be redirected to a file using the `-tofile`. Filename is the unixtimestamp
 
 ```
+
+The command output can be redirected to a file using the `-tofile`. Filename is the unixtimestamp
 
 Standard commands
 
