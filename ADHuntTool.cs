@@ -39,6 +39,8 @@ namespace ADHuntTool
         }
 
         public static bool showACL = false;
+        public static bool bToFile = false;
+        public static string filename = "";
 
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
@@ -275,9 +277,10 @@ namespace ADHuntTool
                 return DateTime.FromFileTime((long)p).ToString();
             }
 
-            if(p.GetType().ToString() == "System.Byte[]")
+            if (p.GetType().ToString() == "System.Byte[]")
             {
-                try {
+                try
+                {
                     SecurityIdentifier si = new SecurityIdentifier((byte[])p, 0);
                     string output = si.ToString();
                     return output;
@@ -505,13 +508,23 @@ namespace ADHuntTool
             return managedFound;
         }
 
-
         static void Main(string[] args)
         {
             bool verboseDebug = Array.Exists(args, match => match.ToLower() == "-verbose");
+            bToFile = Array.Exists(args, match => match.ToLower() == "-tofile");
             Program.showACL = Array.Exists(args, match => match.ToLower() == "-acl");
-
+            StringWriter sw = new StringWriter();
+            TextWriter tw = Console.Out;
             ThreadPool.SetMaxThreads(max_threadpool, max_threadpool);
+
+            if (bToFile)
+            {
+                filename = Directory.GetCurrentDirectory() + "\\" + DateTimeOffset.Now.ToUnixTimeSeconds().ToString() + ".txt";
+                Console.WriteLine("Output will be saved to {0}", filename);
+                sw = new StringWriter();
+                Console.SetOut(sw);
+            }
+
 
             // ShowWindow(GetConsoleWindow(), 0);
             if (args.Length >= 2)
@@ -818,6 +831,21 @@ namespace ADHuntTool
                     catch (Exception e)
                     {
                         Console.WriteLine("ERROR: DumpUser required a user argument");
+                        ShowDebug(e, verboseDebug);
+                    }
+                }
+                else if (option == "dumpsamaccount")
+                {
+                    string query = "";
+                    string properties = "samaccountname";
+                    try
+                    {
+                        query = "(&(objectClass=user))";
+                        LdapQuery(domain, query, properties);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("ERROR: DumpSamAccount catched an unexpected exception");
                         ShowDebug(e, verboseDebug);
                     }
                 }
@@ -1136,7 +1164,16 @@ namespace ADHuntTool
                     Console.WriteLine("Usage: {0} options domain [arguments]", System.Reflection.Assembly.GetExecutingAssembly().Location);
                 }
             }
+            if (bToFile)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(sw.ToString());
+                File.WriteAllText(filename, sb.ToString());
+                Console.SetOut(tw);
+            }
+            Console.WriteLine("Process completed");
         }
+
     }
 
     // Thanks stackoverflow for this parser.
