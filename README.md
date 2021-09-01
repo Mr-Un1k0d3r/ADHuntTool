@@ -47,6 +47,9 @@ Permissions: Create All Child Objects|Delete All Child Objects|List Contents|All
 Trustee: RINGZER0\Enterprise Admins
 ------------
 ...
+
+The command output can be redirected to a file using the `-tofile`. Filename is the unixtimestamp
+
 ```
 
 Standard commands
@@ -61,6 +64,7 @@ ADHuntTool.exe DumpRemoteSession RingZer0 *optional*computername
 ADHuntTool.exe DumpWkstaSession RingZer0 *optional*computername
 ADHuntTool.exe CheckAdmin RingZer0 *optional*computername
 ADHuntTool.exe DumpTrust RingZer0
+ADHuntTool.exe DumpSamAccount RingZer0
 ADHuntTool.exe DumpAllUsers RingZer0
 ADHuntTool.exe DumpUser RingZer0 mr.un1k0d3r
 ADHuntTool.exe DumpUsersEmail RingZer0
