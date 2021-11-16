@@ -14,6 +14,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
+using System.Security;
 
 namespace ADHuntUserEventParser
 {
@@ -34,14 +35,15 @@ namespace ADHuntUserEventParser
                 "*[EventData[Data[@Name=\"IpAddress\"] and(Data=\"{0}\")]]"
             };
             string search = args[1];
-            if(!Enum.IsDefined(typeof(Options), args[0])) {
+            if (!Enum.IsDefined(typeof(Options), args[0]))
+            {
                 Console.WriteLine("Invalid Option: username, domain, ip");
                 return;
             }
             Console.WriteLine("Searching for '{0}'", search);
 
             int index = (int)Enum.Parse(typeof(Options), args[0]);
-            
+
             string query = String.Format(queryString[index], search);
 
             Console.WriteLine("Querying: {0}", query);
@@ -50,7 +52,23 @@ namespace ADHuntUserEventParser
                 try
                 {
                     Console.WriteLine("Parsing {0} ({1}) logs", target.IPAddress, target.Name);
-                    EventLogSession els = new EventLogSession(target.Name);
+                    EventLogSession els;
+                    if (args.Length == 5)
+                    {
+                        Console.WriteLine("Using user provided credentials to authenticate as {0}\\{1}", args[2], args[3]);
+                        SecureString ss = new SecureString();
+                        foreach(char c in args[4])
+                        {
+                            ss.AppendChar(c);
+                            
+                        }
+                        ss.MakeReadOnly();
+                        els = new EventLogSession(target.Name, args[2], args[3], ss, SessionAuthentication.Default);
+                    } else
+                    {
+                        els = new EventLogSession(target.Name);
+                    }
+                    
 
                     EventLogQuery logQuery = new EventLogQuery("Security", PathType.LogName, query);
                     logQuery.Session = els;
@@ -66,7 +84,7 @@ namespace ADHuntUserEventParser
                         }
                         Console.WriteLine(er.FormatDescription() + "\r\n-----------------------------------\r\n");
 
-                        if(er != null)
+                        if (er != null)
                         {
                             er.Dispose();
                         }
