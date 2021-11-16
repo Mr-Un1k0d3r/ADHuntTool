@@ -88,6 +88,16 @@ ADHuntTool.exe GetService target *optional*Domain\Username Password
 
 The `-verbose` switch can be added to get verbose output.
 
+# ADHuntUser
+
+Search through DC event log user using domain name, username or ip.
+
+```
+ADHuntUser.exe username mrun1k0d3r
+ADHuntUser.exe domain RINGZER0
+ADHuntUser.exe ip 192.168.1.10
+```
+
 # Credit 
 
 Mr.Un1k0d3r RingZer0 Team
