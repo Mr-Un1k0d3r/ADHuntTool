@@ -395,7 +395,6 @@ namespace ADHuntTool
                     if (Program.showACL)
                     {
                         sb.Append("ntSecurityDescriptor" + new string(' ', 24 - "ntSecurityDescriptor".Length) + ": ");
-                        sb.Append(r.Properties["ntSecurityDescriptor"]);
                         sb.Append(FormatSDDL(r.Properties["ntSecurityDescriptor"]));
                         sb.Append("\r\n");
                     }
